@@ -4,7 +4,7 @@ from itertools import chain, combinations
 
 import numpy as np
 import numpy.typing as npt
-from scipy.sparse.csgraph import connected_components
+# from scipy.sparse.csgraph import connected_components
 
 
 
@@ -45,7 +45,7 @@ def get_cube_matrix(N: int):
 
 if __name__ == "__main__":
     from pprint import pprint
-    N = 4
+    N = 2
     print("unit vecs:")
     pprint(get_unit_vectors(N))
     print("powerset:")
