@@ -2,13 +2,9 @@ from __future__ import annotations
 from collections import defaultdict
 
 
-from typing import Any, Callable, Literal, FrozenSet, TypeVar
+from typing import Callable, TypeVar
 
 _KT = TypeVar("_KT")
-
-ZERO_OR_ONE = Literal[0] | Literal[1]  # allowed values to take are either 0 or 1
-
-VERTEX_T = tuple[ZERO_OR_ONE, ...]
 
 
 class MultiDict(defaultdict[_KT, set[_KT]]):
@@ -41,12 +37,8 @@ class SymmetricMultiDict(MultiDict[_KT]):
         return super().__setitem__(__key, __value)
 
 
-class ConnectivityMap(SymmetricMultiDict[VERTEX_T]):
-    ...
-
-
 if __name__ == "__main__":
-    m = ConnectivityMap()
+    m = SymmetricMultiDict()
     v = (0, 0)
     u = (0, 1)
     m[v]
