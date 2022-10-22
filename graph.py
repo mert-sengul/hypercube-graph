@@ -45,7 +45,7 @@ class Graph(Generic[_VT]):
 
     cmap: ConnectivityMap[_VT]
     paths: set[tuple[_VT, ...]]
-    _dfs_paths: set[tuple[_VT, ...]]
+    _dfs_paths: frozenset[tuple[_VT, ...]]
     _dfs_cycles: set[tuple[_VT, ...]]
     conn_comps: set[frozenset[_VT]]
 
@@ -53,7 +53,7 @@ class Graph(Generic[_VT]):
         """Returns empty graph"""
         self.cmap = ConnectivityMap()
         self.paths = set()
-        self._dfs_paths = set()  # to store temporary data during dfs
+        self._dfs_paths = frozenset()  # to store temporary data during dfs
         self._dfs_cycles = set()  # to store temporary data during dfs
         self.conn_comps = set()
 
@@ -71,31 +71,26 @@ class Graph(Generic[_VT]):
         return float("inf")
 
     def distance(self, v1: _VT, v2: _VT) -> float:
-        self._dfs_paths.clear()
-        self._DFSUtil(v1)
-        return min(self._distance_in_path(v1, v2, path) for path in self._dfs_paths)
+        dist_list = [self._distance_in_path(v1, v2, path) for path in self._DFSUtil(v1)]
+        return min(dist_list)
 
     @lru_cache
-    def _DFSUtil(self, v: _VT, path: tuple[_VT, ...] | None = None):
+    def _DFSUtil(
+        self, v: _VT, path: tuple[_VT, ...] | None = None
+    ) -> frozenset[tuple[_VT, ...]]:
         if path is None:
             path = tuple()
 
         path += (v,)
-
+        ret = set()
         # Recur for all the adj vertices
         n_branches = 0
         for neighbour in self.cmap[v]:
             if neighbour not in path:
                 n_branches += 1
-                self._DFSUtil(neighbour, path)
+                ret.update(self._DFSUtil(neighbour, path))
 
-        if n_branches == 0:
-            # end of the path. path must be hashable.
-            self._dfs_paths.add(path)
-
-            if path[0] in self.cmap[v]:
-                # a cycle
-                self._dfs_cycles.add(path)
+        return frozenset({path} if n_branches == 0 else ret)
 
     def DFS(self):
         # designed to get connected components
@@ -104,24 +99,8 @@ class Graph(Generic[_VT]):
         unvisited: set[_VT] = self.vertices.copy()
 
         while unvisited:
-            self._dfs_paths.clear()
             v = unvisited.pop()
-            self._DFSUtil(v)
-
-            # # remove duplicate cycles
-            # while self._dfs_cycles:
-            #     curr_cycle = self._dfs_cycles.pop()
-            #     if any(
-            #         cycle_equal(curr_cycle, other_cycle := _other_cycle)
-            #         for _other_cycle in self._dfs_cycles
-            #     ):
-            #         assert len(curr_cycle) >= 1
-            #         assert hasattr(curr_cycle, "__lt__")
-            #         __lt = getattr(curr_cycle, "__lt__")
-            #         path_to_be_rm = curr_cycle if __lt(other_cycle[1]) else other_cycle
-            #         self._dfs_paths.discard(path_to_be_rm)
-
-            #         self._dfs_cycles.discard(other_cycle)
+            self._dfs_paths = self._DFSUtil(v)
 
             conn_comp_elems = frozenset(_v for _p in self._dfs_paths for _v in _p)
             self.conn_comps.add(conn_comp_elems)
