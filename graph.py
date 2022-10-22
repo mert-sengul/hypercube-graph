@@ -1,7 +1,7 @@
 from __future__ import annotations
-from functools import lru_cache
 
 import itertools as it
+from functools import lru_cache
 
 from symmetric_multi_dict import subdictionary, SymmetricMultiDict, _KT
 
@@ -75,28 +75,27 @@ class Graph(Generic[_VT]):
         self._DFSUtil(v1)
         return min(self._distance_in_path(v1, v2, path) for path in self._dfs_paths)
 
-    def _DFSUtil(self, v: _VT, path: list[_VT] | None = None):
-        # TODO: make this func cacheable
+    @lru_cache
+    def _DFSUtil(self, v: _VT, path: tuple[_VT, ...] | None = None):
         if path is None:
-            path = []
+            path = tuple()
 
-        path.append(v)
+        path += (v,)
 
         # Recur for all the adj vertices
         n_branches = 0
         for neighbour in self.cmap[v]:
             if neighbour not in path:
                 n_branches += 1
-                self._DFSUtil(neighbour, path.copy())
+                self._DFSUtil(neighbour, path)
 
         if n_branches == 0:
             # end of the path. path must be hashable.
-            path_t = tuple(path)
-            self._dfs_paths.add(path_t)
+            self._dfs_paths.add(path)
 
             if path[0] in self.cmap[v]:
                 # a cycle
-                self._dfs_cycles.add(path_t)
+                self._dfs_cycles.add(path)
 
     def DFS(self):
         # designed to get connected components
@@ -107,8 +106,6 @@ class Graph(Generic[_VT]):
         while unvisited:
             self._dfs_paths.clear()
             v = unvisited.pop()
-            if v == "6":
-                pass
             self._DFSUtil(v)
 
             # # remove duplicate cycles
