@@ -1,16 +1,8 @@
 from __future__ import annotations
-from typing import Generic, Iterable, Type, TypeVar, Sequence
 
 import unittest
 
-from graph import Graph, ConnectivityMap, cycle_equal
-import graph
-
-_CT = TypeVar("_CT")
-
-
-_KV = TypeVar("_KV")
-_TV = TypeVar("_TV")
+from graph import Graph
 
 
 class TestGraph1(unittest.TestCase):
@@ -51,38 +43,14 @@ class TestGraph1(unittest.TestCase):
     def test_conn_comps(self):
         self.assertSetEqual(self.graph.conn_comps, self.expected_conn_comps)
 
-    def test_paths(self):
-        print()
-        print(self.graph.paths)
-        print()
+    # def test_paths(self):
+    #     ...
 
     def test_distance(self):
         res_dict = {}
         for u, v in self.expected_distances_dict:
             res_dict[(u, v)] = self.graph.distance(u, v)
         self.assertDictEqual(self.expected_distances_dict, res_dict)
-
-    #     graph_paths = self.graph.paths.copy()
-    #     expected_paths = self.expected_paths.copy()
-    #     self.assertEqual(
-    #         len(graph_paths),
-    #         len(expected_paths),
-    #         f"""Path counts do not equal: {len(graph_paths)=}, {len(expected_paths)=}.
-    #         {graph_paths=}
-    #         {expected_paths=}""",
-    #     )
-    #     possible_matches: dict[tuple, list[list]] = {p: [] for p in graph_paths}
-    #     for _path in graph_paths:
-    #         self.assertTrue(
-    #             any(
-    #                 cycle_equal(_path, o_path := _o_path) for _o_path in expected_paths
-    #             ),
-    #             msg=f"{_path=} is not in {expected_paths}",
-    #         )
-    #         expected_paths.remove(o_path)
-
-    #     # self.assertCountEqual(self.graph.paths, {(0, 1, 2, 3), (0, 2, 1), (0, 2, 3)})
-    #     # self.assertEqual(len(self.graph.paths), len(self.expected_paths))
 
 
 class TestGraph2(TestGraph1):
