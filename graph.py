@@ -110,8 +110,6 @@ class Graph(Generic[_VT]):
 
         assert visited == self.vertices
 
-        # print("cycle_equal: ", curr_cycle, other_cycle)
-
 
 # class Hypercube(Graph[_HC_VT]):
 #     def __init__(self, n: int) -> None:
