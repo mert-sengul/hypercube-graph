@@ -2,9 +2,13 @@ from __future__ import annotations
 from collections import defaultdict
 
 
-from typing import Callable, TypeVar
+from typing import Any, Callable, Iterable, TypeVar
 
 _KT = TypeVar("_KT")
+
+
+def subdictionary(_dict: dict[_KT, Any], keys: Iterable[_KT]) -> dict[_KT, Any]:
+    return {_k: _v for _k, _v in _dict.items() if _k in keys}
 
 
 class MultiDict(defaultdict[_KT, set[_KT]]):
